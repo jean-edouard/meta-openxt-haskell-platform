@@ -1,7 +1,7 @@
 SRC_HC_OPTS        = -H64m -O0 -fasm
-GhcStage1HcOpts    = -O0 -fasm
+GhcStage1HcOpts    = -O -fasm
 GhcStage2HcOpts    = -O0 -fasm
-GhcLibHcOpts       = -O0 -fasm
+GhcLibHcOpts       = -O -fasm
 SplitObjs          = NO
 HADDOCK_DOCS       = NO
 BUILD_DOCBOOK_HTML = NO
