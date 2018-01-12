@@ -1,0 +1,22 @@
+From bdbb7f57adf98d4826e0c97b5eff9c45ceb3dbf2 Mon Sep 17 00:00:00 2001
+From: Simon Marlow <marlowsd@gmail.com>
+Date: Thu, 24 Jun 2010 10:46:54 +0000
+Subject: [PATCH] Fix an arithmetic overflow bug causing crashes with multi-GB
+ heaps
+
+---
+ rts/sm/BlockAlloc.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/rts/sm/BlockAlloc.c b/rts/sm/BlockAlloc.c
+index 68c33304f63..9d92c6bee10 100644
+--- a/rts/sm/BlockAlloc.c
++++ b/rts/sm/BlockAlloc.c
+@@ -283,7 +283,7 @@ alloc_mega_group (nat mblocks)
+     if (best)
+     {
+         // we take our chunk off the end here.
+-        nat best_mblocks  = BLOCKS_TO_MBLOCKS(best->blocks);
++        StgWord best_mblocks  = BLOCKS_TO_MBLOCKS(best->blocks);
+         bd = FIRST_BDESCR((StgWord8*)MBLOCK_ROUND_DOWN(best) + 
+                           (best_mblocks-mblocks)*MBLOCK_SIZE);
