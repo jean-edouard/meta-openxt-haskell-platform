@@ -6,6 +6,8 @@ EXTRA_CABAL_CONF += "--flag=executable"
 
 inherit hackage
 
+SRC_URI += " file://no-pie.patch "
+
 SRC_URI[md5sum] = "4d727ca01e55884d642613593edb47f5"
 SRC_URI[sha256sum] = "f15dd0127cbaaaa3fef69bfde6e2ac8b83e9d3a0295bf94de8c0c9e8c928e375"
 DEPENDS += " \
