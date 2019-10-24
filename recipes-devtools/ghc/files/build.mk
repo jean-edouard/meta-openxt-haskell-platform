@@ -1,6 +1,6 @@
-SRC_HC_OPTS        = -H64m -O0 -fasm
-GhcStage1HcOpts    = -O -fasm
-GhcStage2HcOpts    = -O0 -fasm
+SRC_HC_OPTS        = -H64m -O0 -fasm -optc-no-pie -optl-no-pie -optP-no-pie
+GhcStage1HcOpts    = -O -fasm -optc-no-pie -optl-no-pie -optP-no-pie
+GhcStage2HcOpts    = -O0 -fasm -optc-no-pie -optl-no-pie -optP-no-pie
 GhcLibHcOpts       = -O -fasm
 SplitObjs          = NO
 HADDOCK_DOCS       = NO
