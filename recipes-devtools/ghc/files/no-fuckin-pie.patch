@@ -1,0 +1,607 @@
+--- a/aclocal.m4
++++ b/aclocal.m4
+@@ -1235,7 +1235,7 @@ if test ! -f utils/ghc-pwd/ghc-pwd && te
+   rm -f *.hi
+   rm -f ghc-pwd
+   rm -f ghc-pwd.exe
+-  "$WithGhc" -v0 --make ghc-pwd -o ghc-pwd
++  "$WithGhc" -v0 -optc-no-pie -optl-no-pie -optP-no-pie --make ghc-pwd -o ghc-pwd
+   cd ../..
+ fi
+ 
+--- a/configure
++++ b/configure
+@@ -3122,7 +3122,7 @@ if test ! -f utils/ghc-pwd/ghc-pwd && te
+   rm -f *.hi
+   rm -f ghc-pwd
+   rm -f ghc-pwd.exe
+-  "$WithGhc" -v0 --make ghc-pwd -o ghc-pwd
++  "$WithGhc" -v0 -optc-no-pie -optl-no-pie -optP-no-pie --make ghc-pwd -o ghc-pwd
+   cd ../..
+ fi
+ 
+--- a/utils/ghc-cabal/ghc.mk
++++ b/utils/ghc-cabal/ghc.mk
+@@ -26,7 +26,7 @@ $(GHC_CABAL_DIR)/dist/build/tmp/ghc-caba
+ $(GHC_CABAL_DIR)/dist/build/tmp/ghc-cabal$(exeext): $(wildcard libraries/Cabal/Distribution/*.hs)
+ 
+ $(GHC_CABAL_DIR)/dist/build/tmp/ghc-cabal$(exeext): $(GHC_CABAL_DIR)/ghc-cabal.hs | $$(dir $$@)/. bootstrapping/.
+-	"$(GHC)" $(SRC_HC_OPTS) --make $(GHC_CABAL_DIR)/ghc-cabal.hs -o $@ \
++	"$(GHC)" $(SRC_HC_OPTS) -optc-no-pie -optl-no-pie -optP-no-pie --make $(GHC_CABAL_DIR)/ghc-cabal.hs -o $@ \
+ 	       -Wall $(WERROR) \
+ 	       -DCABAL_VERSION=$(CABAL_VERSION) \
+ 	       -odir  bootstrapping \
+@@ -53,6 +53,7 @@ $(eval $(call all-target,$(GHC_CABAL_DIR
+ 
+ $(GHC_CABAL_DIR)_dist-dummy-ghc_MODULES = dummy-ghc
+ $(GHC_CABAL_DIR)_dist-dummy-ghc_PROG    = dummy-ghc$(exeext)
++$(GHC_CABAL_DIR)_dist-dummy-ghc_HC_OPTS = -optc-no-pie -optl-no-pie -optP-no-pie
+ 
+ # depend on project.mk, so we pick up the new version number if it changes.
+ $(GHC_CABAL_DIR)/dist-dummy-ghc/build/dummy-ghc.hs : $(GHC_CABAL_DIR)/ghc.mk mk/project.mk | $$(dir $$@)/.
+@@ -87,6 +88,6 @@ $(GHC_CABAL_DIR)/dist-dummy-ghc/build/du
+ 
+ # We don't build dummy-ghc with Cabal, so we need to pass -package
+ # flags manually
+-utils/ghc-cabal_dist-dummy-ghc_HC_OPTS = -package process
++utils/ghc-cabal_dist-dummy-ghc_HC_OPTS = -package process -optc-no-pie -optl-no-pie -optP-no-pie
+ $(eval $(call build-prog,utils/ghc-cabal,dist-dummy-ghc,0))
+ 
+--- a/utils/unlit/ghc.mk
++++ b/utils/unlit/ghc.mk
+@@ -14,6 +14,7 @@ utils/unlit_dist_C_SRCS  = unlit.c
+ utils/unlit_dist_PROG    = $(GHC_UNLIT_PGM)
+ utils/unlit_dist_TOPDIR  = YES
+ utils/unlit_dist_INSTALL = YES
++utils/unlit_dist_HC_OPTS = -optc-no-pie -optl-no-pie -optP-no-pie
+ 
+ $(eval $(call build-prog,utils/unlit,dist,0))
+ 
+--- a/utils/hsc2hs/ghc.mk
++++ b/utils/hsc2hs/ghc.mk
+@@ -18,8 +18,8 @@ $(eval $(call build-prog,utils/hsc2hs,di
+ utils/hsc2hs_dist_MODULES += Paths_hsc2hs
+ utils/hsc2hs_dist-install_MODULES = $(utils/hsc2hs_dist_MODULES)
+ 
+-utils/hsc2hs_dist_HC_OPTS         += -DNEW_GHC_LAYOUT
+-utils/hsc2hs_dist-install_HC_OPTS += -DNEW_GHC_LAYOUT
++utils/hsc2hs_dist_HC_OPTS         += -DNEW_GHC_LAYOUT -optc-no-pie -optl-no-pie -optP-no-pie
++utils/hsc2hs_dist-install_HC_OPTS += -DNEW_GHC_LAYOUT -optc-no-pie -optl-no-pie -optP-no-pie
+ 
+ utils/hsc2hs_template=$(INPLACE_TOPDIR)/template-hsc.h
+ 
+--- a/utils/ghc-pkg/ghc.mk
++++ b/utils/ghc-pkg/ghc.mk
+@@ -14,6 +14,7 @@
+ # Bootstrapping ghc-pkg
+ 
+ utils/ghc-pkg_dist_PROG = ghc-pkg$(exeext)
++utils/ghc-pkg_dist_HC_OPTS = -optc-no-pie -optl-no-pie -optP-no-pie
+ 
+ ifeq "$(BootingFromHc)" "YES"
+ 
+@@ -47,7 +48,7 @@ endif
+ # depend on ghc-cabal, otherwise we build Cabal twice when building in parallel
+ # The binary package is not warning-clean, so we need a few -fno-warns here.
+ utils/ghc-pkg/dist/build/$(utils/ghc-pkg_dist_PROG)$(exeext): utils/ghc-pkg/Main.hs utils/ghc-pkg/Version.hs $(GHC_CABAL_INPLACE) | bootstrapping/. $$(dir $$@)/.
+-	"$(GHC)" $(SRC_HC_OPTS) --make utils/ghc-pkg/Main.hs -o $@ \
++	"$(GHC)" $(SRC_HC_OPTS) -optc-no-pie -optl-no-pie -optP-no-pie --make utils/ghc-pkg/Main.hs -o $@ \
+ 	       -Wall -fno-warn-unused-imports \
+ 	       -DCABAL_VERSION=$(CABAL_VERSION) \
+ 	       -DBOOTSTRAPPING \
+@@ -88,6 +89,7 @@ utils/ghc-pkg_dist-install_SHELL_WRAPPER
+ utils/ghc-pkg_dist-install_INSTALL_SHELL_WRAPPER = YES
+ utils/ghc-pkg_dist-install_INSTALL_SHELL_WRAPPER_NAME = ghc-pkg-$(ProjectVersion)
+ utils/ghc-pkg_dist-install_INSTALL_INPLACE = NO
++utils/ghc-pkg_dist-install_HC_OPTS = -optc-no-pie -optl-no-pie -optP-no-pie
+ 
+ ifeq "$(BootingFromHc)" "YES"
+ utils/ghc-pkg_dist-install_OTHER_OBJS += $(ALL_STAGE1_LIBS) $(ALL_STAGE1_LIBS) $(ALL_STAGE1_LIBS) $(ALL_RTS_LIBS) $(libffi_STATIC_LIB)
+--- a/utils/genprimopcode/ghc.mk
++++ b/utils/genprimopcode/ghc.mk
+@@ -12,5 +12,6 @@
+ 
+ utils/genprimopcode_dist_MODULES = Lexer Main ParserM Parser Syntax
+ utils/genprimopcode_dist_PROG    = $(GHC_GENPRIMOP_PGM)
++utils/genprimopcode_dist_HC_OPTS = -optc-no-pie -optl-no-pie -optP-no-pie
+ 
+ $(eval $(call build-prog,utils/genprimopcode,dist,0))
+--- a/includes/ghc.mk
++++ b/includes/ghc.mk
+@@ -39,6 +39,8 @@ ifneq "$(GhcWithSMP)" "YES"
+ includes_CC_OPTS += -DNOSMP
+ endif
+ 
++includes_CC_OPTS += -no-pie
++
+ # The fptools configure script creates the configuration header file and puts it
+ # in fptools/mk/config.h. We copy it down to here (without any PACKAGE_FOO
+ # definitions to avoid clashes), prepending some make variables specifying cpp
+@@ -126,6 +128,8 @@ else
+ 
+ includes_dist-derivedconstants_C_SRCS = mkDerivedConstants.c
+ includes_dist-derivedconstants_PROG   = mkDerivedConstants$(exeext)
++includes_dist-derivedconstants_HC_OPTS = -optc-no-pie -optl-no-pie -optP-no-pie
++includes_dist-derivedconstants_CC_OPTS = -no-pie
+ 
+ $(eval $(call build-prog,includes,dist-derivedconstants,0))
+ 
+@@ -154,7 +158,8 @@ else
+ 
+ includes_dist-ghcconstants_C_SRCS = mkDerivedConstants.c
+ includes_dist-ghcconstants_PROG   = mkGHCConstants$(exeext)
+-includes_dist-ghcconstants_CC_OPTS = -DGEN_HASKELL
++includes_dist-ghcconstants_HC_OPTS = -optc-no-pie -optl-no-pie -optP-no-pie
++includes_dist-ghcconstants_CC_OPTS = -DGEN_HASKELL -no-pie
+ 
+ $(eval $(call build-prog,includes,dist-ghcconstants,0))
+ 
+--- a/includes/Rts.h
++++ b/includes/Rts.h
+@@ -58,8 +58,8 @@ extern "C" {
+ #endif
+ 
+ #if __GNUC__ > 4
+-#define BEGIN_RTS_PRIVATE #pragma GCC visibility push(hidden)
+-#define END_RTS_PRIVATE   #pragma GCC visibility pop
++#define BEGIN_RTS_PRIVATE
++#define END_RTS_PRIVATE
+ #else
+ #define BEGIN_RTS_PRIVATE /* disabled: BEGIN_RTS_PRIVATE */
+ #define END_RTS_PRIVATE   /* disabled: END_RTS_PRIVATE */
+--- a/mk/config.mk.in
++++ b/mk/config.mk.in
+@@ -88,14 +88,14 @@ GhcCompilerWays=
+ #	-dcore-lint	check the types after every pass of the compiler;
+ #			a pretty strong internal check of the compiler being
+ #			used to compile GHC.  Useful when bootstrapping.
+-GhcHcOpts=-Rghc-timing
++GhcHcOpts=-Rghc-timing -optc-no-pie -optl-no-pie -optP-no-pie
+ 
+ # Extra options added to specific stages of the compiler bootstrap.
+ # These are placed later on the command line, and may therefore
+ # override options from $(GhcHcOpts).
+-GhcStage1HcOpts=
+-GhcStage2HcOpts=-O2
+-GhcStage3HcOpts=-O2
++GhcStage1HcOpts=-optc-no-pie -optl-no-pie -optP-no-pie
++GhcStage2HcOpts=-O2 -optc-no-pie -optl-no-pie -optP-no-pie
++GhcStage3HcOpts=-O2 -optc-no-pie -optl-no-pie -optP-no-pie
+ 
+ GhcProfiled=NO
+ GhcDebugged=NO
+@@ -268,7 +268,7 @@ GhcThreaded = $(if $(findstring thr,$(Gh
+ #		but we switch it on for the libraries so that we generate
+ #		the code in case someone importing wants it
+ 
+-GhcLibHcOpts=-O2 -XGenerics
++GhcLibHcOpts=-O2 -XGenerics -optc-no-pie -optl-no-pie -optP-no-pie
+ 
+ # Strip local symbols from libraries?  This can make the libraries smaller,
+ # but makes debugging somewhat more difficult.  Doesn't work with all ld's.
+@@ -317,8 +317,8 @@ CHECK_PACKAGES = NO
+ 
+ # For an optimised RTS (you probably don't want to change these; we build
+ # a debugging RTS by default now.  Use -debug to get it).
+-GhcRtsHcOpts=-optc-O2
+-GhcRtsCcOpts=-fomit-frame-pointer
++GhcRtsHcOpts=-optc-O2 -optc-no-pie -optl-no-pie -optP-no-pie
++GhcRtsCcOpts=-fomit-frame-pointer -no-pie
+ 
+ # Include the front panel code?  Needs GTK+.
+ GhcRtsWithFrontPanel = NO
+@@ -376,7 +376,7 @@ WINDOWS_INSTALLER = $(WINDOWS_INSTALLER_
+ #
+ #	SRC_HC_OPTS += -O
+ 
+-SRC_HC_OPTS += -H32m -O
++SRC_HC_OPTS += -H32m -O -optc-no-pie -optl-no-pie -optP-no-pie
+ 
+ # These flags make flex 8-bit
+ SRC_FLEX_OPTS	+= -8
+@@ -385,7 +385,7 @@ SRC_FLEX_OPTS	+= -8
+ SRC_BLD_DLL_OPTS += --target=i386-mingw32
+ 
+ # Flags for CPP when running GreenCard on .pgc files
+-GC_CPP_OPTS += -P -E -x c -traditional -D__GLASGOW_HASKELL__
++GC_CPP_OPTS += -P -E -x c -traditional -D__GLASGOW_HASKELL__ -no-pie
+ 
+ 
+ # -----------------------------------------------------------------------------
+--- /dev/null
++++ b/mk/validate.mk
+@@ -0,0 +1,5 @@
++SRC_CC_OPTS     += -no-pie
++SRC_HC_OPTS     += -optc-no-pie -optl-no-pie -optP-no-pie
++GhcStage1HcOpts += -optc-no-pie -optl-no-pie -optP-no-pie
++GhcStage2HcOpts += -optc-no-pie -optl-no-pie -optP-no-pie
++GhcLibHcOpts    += -optc-no-pie -optl-no-pie -optP-no-pie
+--- a/ghc/ghc.mk
++++ b/ghc/ghc.mk
+@@ -14,9 +14,9 @@
+ ghc_USES_CABAL = NO
+ # ghc_PACKAGE = ghc-bin
+ 
+-ghc_stage1_HC_OPTS = $(GhcStage1HcOpts)
+-ghc_stage2_HC_OPTS = $(GhcStage2HcOpts)
+-ghc_stage3_HC_OPTS = $(GhcStage3HcOpts)
++ghc_stage1_HC_OPTS = $(GhcStage1HcOpts) -optc-no-pie -optl-no-pie -optP-no-pie
++ghc_stage2_HC_OPTS = $(GhcStage2HcOpts) -optc-no-pie -optl-no-pie -optP-no-pie
++ghc_stage3_HC_OPTS = $(GhcStage3HcOpts) -optc-no-pie -optl-no-pie -optP-no-pie
+ 
+ ifeq "$(GhcWithInterpreter)" "YES"
+ ghc_stage2_HC_OPTS += -DGHCI
+--- a/libraries/ghc-prim/ghc.mk
++++ b/libraries/ghc-prim/ghc.mk
+@@ -1,3 +1,5 @@
+ libraries/ghc-prim_PACKAGE = ghc-prim
++libraries/ghc-prim_HC_OPTS = -optc-no-pie -optl-no-pie -optP-no-pie
+ libraries/ghc-prim_dist-install_GROUP = libraries
++libraries/ghc-prim_dist_HC_OPTS = -optc-no-pie -optl-no-pie -optP-no-pie
+ $(eval $(call build-package,libraries/ghc-prim,dist-install,1))
+--- a/utils/genapply/ghc.mk
++++ b/utils/genapply/ghc.mk
+@@ -13,7 +13,7 @@
+ utils/genapply_dist_MODULES = GenApply
+ utils/genapply_dist_PROG    = $(GHC_GENAPPLY_PGM)
+ 
+-utils/genapply_HC_OPTS += -package pretty
++utils/genapply_HC_OPTS += -package pretty -optc-no-pie -optl-no-pie -optP-no-pie
+ 
+ ifeq "$(GhcUnregisterised)" "YES"
+ utils/genapply_HC_OPTS += -DNO_REGS
+--- a/utils/hp2ps/ghc.mk
++++ b/utils/hp2ps/ghc.mk
+@@ -17,6 +17,7 @@ utils/hp2ps_dist_C_SRCS = AreaBelow.c Cu
+                           Utilities.c
+ utils/hp2ps_dist_PROG    = hp2ps$(exeext)
+ utils/hp2ps_dist_INSTALL = YES
++utils/hp2ps_dist_HC_OPTS = -optc-no-pie -optl-no-pie -optP-no-pie
+ 
+ $(eval $(call build-prog,utils/hp2ps,dist,0))
+ 
+--- a/utils/hpc/ghc.mk
++++ b/utils/hpc/ghc.mk
+@@ -13,7 +13,7 @@
+ utils/hpc_dist_MODULES = Main HpcCombine HpcDraft HpcFlags HpcLexer HpcMap \
+ 			 HpcMarkup HpcOverlay HpcParser HpcReport HpcSet \
+ 			 HpcShowTix HpcUtils
+-utils/hpc_dist_HC_OPTS = -cpp -package hpc
++utils/hpc_dist_HC_OPTS = -cpp -package hpc -optc-no-pie -optl-no-pie -optP-no-pie
+ utils/hpc_dist_INSTALL = YES
+ utils/hpc_dist_PROG    = hpc$(exeext)
+ $(eval $(call build-prog,utils/hpc,dist,1))
+--- a/utils/runghc/ghc.mk
++++ b/utils/runghc/ghc.mk
+@@ -11,7 +11,7 @@
+ # -----------------------------------------------------------------------------
+ 
+ utils/runghc_dist_MODULES = Main
+-utils/runghc_dist_HC_OPTS = -cpp -DVERSION="\"$(ProjectVersion)\""
++utils/runghc_dist_HC_OPTS = -cpp -DVERSION="\"$(ProjectVersion)\"" -optc-no-pie -optl-no-pie -optP-no-pie
+ utils/runghc_dist_PROG    = runghc$(exeext)
+ utils/runghc_dist_SHELL_WRAPPER = YES
+ utils/runghc_dist_INSTALL_SHELL_WRAPPER = YES
+--- a/libraries/Cabal/ghc.mk
++++ b/libraries/Cabal/ghc.mk
+@@ -1,3 +1,5 @@
+ libraries/Cabal_PACKAGE = Cabal
++libraries/Cabal_HC_OPTS = -optc-no-pie -optl-no-pie -optP-no-pie
+ libraries/Cabal_dist-install_GROUP = libraries
++libraries/Cabal_dist_HC_OPTS = -optc-no-pie -optl-no-pie -optP-no-pie
+ $(eval $(call build-package,libraries/Cabal,dist-install,1))
+--- a/libraries/Win32/ghc.mk
++++ b/libraries/Win32/ghc.mk
+@@ -1,3 +1,5 @@
+ libraries/Win32_PACKAGE = Win32
++libraries/Win32_HC_OPTS = -optc-no-pie -optl-no-pie -optP-no-pie
+ libraries/Win32_dist-install_GROUP = libraries
++libraries/Win32_dist_HC_OPTS = -optc-no-pie -optl-no-pie -optP-no-pie
+ $(eval $(call build-package,libraries/Win32,dist-install,1))
+--- a/libraries/array/ghc.mk
++++ b/libraries/array/ghc.mk
+@@ -1,3 +1,5 @@
+ libraries/array_PACKAGE = array
++libraries/array_HC_OPTS = -optc-no-pie -optl-no-pie -optP-no-pie
+ libraries/array_dist-install_GROUP = libraries
++libraries/array_dist_HC_OPTS = -optc-no-pie -optl-no-pie -optP-no-pie
+ $(eval $(call build-package,libraries/array,dist-install,1))
+--- a/libraries/base/ghc.mk
++++ b/libraries/base/ghc.mk
+@@ -1,3 +1,5 @@
+ libraries/base_PACKAGE = base
++libraries/base_HC_OPTS = -optc-no-pie -optl-no-pie -optP-no-pie
+ libraries/base_dist-install_GROUP = libraries
++libraries/base_dist_HC_OPTS = -optc-no-pie -optl-no-pie -optP-no-pie
+ $(eval $(call build-package,libraries/base,dist-install,1))
+--- a/libraries/base3-compat/ghc.mk
++++ b/libraries/base3-compat/ghc.mk
+@@ -1,3 +1,5 @@
+ libraries/base3-compat_PACKAGE = base
++libraries/base3-compat_HC_OPTS = -optc-no-pie -optl-no-pie -optP-no-pie
+ libraries/base3-compat_dist-install_GROUP = libraries
++libraries/base3-compat_dist_HC_OPTS = -optc-no-pie -optl-no-pie -optP-no-pie
+ $(eval $(call build-package,libraries/base3-compat,dist-install,1))
+--- a/libraries/bin-package-db/ghc.mk
++++ b/libraries/bin-package-db/ghc.mk
+@@ -1,3 +1,5 @@
+ libraries/bin-package-db_PACKAGE = bin-package-db
++libraries/bin-package-db_HC_OPTS = -optc-no-pie -optl-no-pie -optP-no-pie
+ libraries/bin-package-db_dist-install_GROUP = libraries
++libraries/bin-package-db_dist_HC_OPTS = -optc-no-pie -optl-no-pie -optP-no-pie
+ $(eval $(call build-package,libraries/bin-package-db,dist-install,1))
+--- a/libraries/bytestring/ghc.mk
++++ b/libraries/bytestring/ghc.mk
+@@ -1,3 +1,5 @@
+ libraries/bytestring_PACKAGE = bytestring
++libraries/bytestring_HC_OPTS = -optc-no-pie -optl-no-pie -optP-no-pie
+ libraries/bytestring_dist-install_GROUP = libraries
++libraries/bytestring_dist_HC_OPTS = -optc-no-pie -optl-no-pie -optP-no-pie
+ $(eval $(call build-package,libraries/bytestring,dist-install,1))
+--- a/libraries/containers/ghc.mk
++++ b/libraries/containers/ghc.mk
+@@ -1,3 +1,5 @@
+ libraries/containers_PACKAGE = containers
++libraries/containers_HC_OPTS = -optc-no-pie -optl-no-pie -optP-no-pie
+ libraries/containers_dist-install_GROUP = libraries
++libraries/containers_dist_HC_OPTS = -optc-no-pie -optl-no-pie -optP-no-pie
+ $(eval $(call build-package,libraries/containers,dist-install,1))
+--- a/libraries/directory/ghc.mk
++++ b/libraries/directory/ghc.mk
+@@ -1,3 +1,5 @@
+ libraries/directory_PACKAGE = directory
++libraries/directory_HC_OPTS = -optc-no-pie -optl-no-pie -optP-no-pie
+ libraries/directory_dist-install_GROUP = libraries
++libraries/directory_dist_HC_OPTS = -optc-no-pie -optl-no-pie -optP-no-pie
+ $(eval $(call build-package,libraries/directory,dist-install,1))
+--- a/libraries/dph/dph-base/ghc.mk
++++ b/libraries/dph/dph-base/ghc.mk
+@@ -1,3 +1,5 @@
+ libraries/dph/dph-base_PACKAGE = dph-base
++libraries/dph/dph-base_HC_OPTS = -optc-no-pie -optl-no-pie -optP-no-pie
+ libraries/dph/dph-base_dist-install_GROUP = libraries
++libraries/dph/dph-base_dist_HC_OPTS = -optc-no-pie -optl-no-pie -optP-no-pie
+ $(eval $(call build-package,libraries/dph/dph-base,dist-install,2))
+--- a/libraries/dph/dph-common/ghc.mk
++++ b/libraries/dph/dph-common/ghc.mk
+@@ -1,3 +1,5 @@
+ libraries/dph/dph-common_PACKAGE = dph-common
++libraries/dph/dph-common_HC_OPTS = -optc-no-pie -optl-no-pie -optP-no-pie
+ libraries/dph/dph-common_dist-install_GROUP = libraries
++libraries/dph/dph-common_dist_HC_OPTS = -optc-no-pie -optl-no-pie -optP-no-pie
+ $(eval $(call build-package,libraries/dph/dph-common,dist-install,2))
+--- a/libraries/dph/dph-prim-interface/ghc.mk
++++ b/libraries/dph/dph-prim-interface/ghc.mk
+@@ -1,3 +1,5 @@
+ libraries/dph/dph-prim-interface_PACKAGE = dph-prim-interface
++libraries/dph/dph-prim-interface_HC_OPTS = -optc-no-pie -optl-no-pie -optP-no-pie
+ libraries/dph/dph-prim-interface_dist-install_GROUP = libraries
++libraries/dph/dph-prim-interface_dist_HC_OPTS = -optc-no-pie -optl-no-pie -optP-no-pie
+ $(eval $(call build-package,libraries/dph/dph-prim-interface,dist-install,2))
+--- a/libraries/dph/dph-prim-par/ghc.mk
++++ b/libraries/dph/dph-prim-par/ghc.mk
+@@ -1,3 +1,5 @@
+ libraries/dph/dph-prim-par_PACKAGE = dph-prim-par
++libraries/dph/dph-prim-par_HC_OPTS = -optc-no-pie -optl-no-pie -optP-no-pie
+ libraries/dph/dph-prim-par_dist-install_GROUP = libraries
++libraries/dph/dph-prim-par_dist_HC_OPTS = -optc-no-pie -optl-no-pie -optP-no-pie
+ $(eval $(call build-package,libraries/dph/dph-prim-par,dist-install,2))
+--- a/libraries/dph/dph-prim-seq/ghc.mk
++++ b/libraries/dph/dph-prim-seq/ghc.mk
+@@ -1,3 +1,5 @@
+ libraries/dph/dph-prim-seq_PACKAGE = dph-prim-seq
++libraries/dph/dph-prim-seq_HC_OPTS = -optc-no-pie -optl-no-pie -optP-no-pie
+ libraries/dph/dph-prim-seq_dist-install_GROUP = libraries
++libraries/dph/dph-prim-seq_dist_HC_OPTS = -optc-no-pie -optl-no-pie -optP-no-pie
+ $(eval $(call build-package,libraries/dph/dph-prim-seq,dist-install,2))
+--- a/libraries/extensible-exceptions/ghc.mk
++++ b/libraries/extensible-exceptions/ghc.mk
+@@ -1,3 +1,5 @@
+ libraries/extensible-exceptions_PACKAGE = extensible-exceptions
++libraries/extensible-exceptions_HC_OPTS = -optc-no-pie -optl-no-pie -optP-no-pie
+ libraries/extensible-exceptions_dist-install_GROUP = libraries
++libraries/extensible-exceptions_dist_HC_OPTS = -optc-no-pie -optl-no-pie -optP-no-pie
+ $(eval $(call build-package,libraries/extensible-exceptions,dist-install,1))
+--- a/libraries/filepath/ghc.mk
++++ b/libraries/filepath/ghc.mk
+@@ -1,3 +1,5 @@
+ libraries/filepath_PACKAGE = filepath
++libraries/filepath_HC_OPTS = -optc-no-pie -optl-no-pie -optP-no-pie
+ libraries/filepath_dist-install_GROUP = libraries
++libraries/filepath_dist_HC_OPTS = -optc-no-pie -optl-no-pie -optP-no-pie
+ $(eval $(call build-package,libraries/filepath,dist-install,1))
+--- a/libraries/ghc-binary/ghc.mk
++++ b/libraries/ghc-binary/ghc.mk
+@@ -1,3 +1,5 @@
+ libraries/ghc-binary_PACKAGE = ghc-binary
++libraries/ghc-binary_HC_OPTS = -optc-no-pie -optl-no-pie -optP-no-pie
+ libraries/ghc-binary_dist-install_GROUP = libraries
++libraries/ghc-binary_dist_HC_OPTS = -optc-no-pie -optl-no-pie -optP-no-pie
+ $(eval $(call build-package,libraries/ghc-binary,dist-install,1))
+--- a/libraries/haskeline/ghc.mk
++++ b/libraries/haskeline/ghc.mk
+@@ -1,3 +1,5 @@
+ libraries/haskeline_PACKAGE = haskeline
++libraries/haskeline_HC_OPTS = -optc-no-pie -optl-no-pie -optP-no-pie
+ libraries/haskeline_dist-install_GROUP = libraries
++libraries/haskeline_dist_HC_OPTS = -optc-no-pie -optl-no-pie -optP-no-pie
+ $(eval $(call build-package,libraries/haskeline,dist-install,1))
+--- a/libraries/haskell98/ghc.mk
++++ b/libraries/haskell98/ghc.mk
+@@ -1,3 +1,5 @@
+ libraries/haskell98_PACKAGE = haskell98
++libraries/haskell98_HC_OPTS = -optc-no-pie -optl-no-pie -optP-no-pie
+ libraries/haskell98_dist-install_GROUP = libraries
++libraries/haskell98_dist_HC_OPTS = -optc-no-pie -optl-no-pie -optP-no-pie
+ $(eval $(call build-package,libraries/haskell98,dist-install,1))
+--- a/libraries/hpc/ghc.mk
++++ b/libraries/hpc/ghc.mk
+@@ -1,3 +1,5 @@
+ libraries/hpc_PACKAGE = hpc
++libraries/hpc_HC_OPTS = -optc-no-pie -optl-no-pie -optP-no-pie
+ libraries/hpc_dist-install_GROUP = libraries
++libraries/hpc_dist_HC_OPTS = -optc-no-pie -optl-no-pie -optP-no-pie
+ $(eval $(call build-package,libraries/hpc,dist-install,1))
+--- a/libraries/integer-gmp/ghc.mk
++++ b/libraries/integer-gmp/ghc.mk
+@@ -1,3 +1,5 @@
+ libraries/integer-gmp_PACKAGE = integer-gmp
++libraries/integer-gmp_HC_OPTS = -optc-no-pie -optl-no-pie -optP-no-pie
+ libraries/integer-gmp_dist-install_GROUP = libraries
++libraries/integer-gmp_dist_HC_OPTS = -optc-no-pie -optl-no-pie -optP-no-pie
+ $(eval $(call build-package,libraries/integer-gmp,dist-install,1))
+--- a/libraries/integer-gmp/gmp/ghc.mk
++++ b/libraries/integer-gmp/gmp/ghc.mk
+@@ -17,7 +17,7 @@ include libraries/integer-gmp/gmp/config
+ endif
+ 
+ libraries/integer-gmp_CC_OPTS += $(addprefix -I,$(GMP_INCLUDE_DIRS))
+-libraries/integer-gmp_CC_OPTS += $(addprefix -L,$(GMP_LIB_DIRS))
++libraries/integer-gmp_CC_OPTS += $(addprefix -L,$(GMP_LIB_DIRS)) -no-pie
+ 
+ libraries/integer-gmp/cbits/mkGmpDerivedConstants$(exeext): libraries/integer-gmp/cbits/mkGmpDerivedConstants.c
+ 	"$(CC)" $(SRC_CC_OPTS) $(CONF_CC_OPTS) $(libraries/integer-gmp_CC_OPTS) $< -o $@
+--- a/libraries/integer-simple/ghc.mk
++++ b/libraries/integer-simple/ghc.mk
+@@ -1,3 +1,5 @@
+ libraries/integer-simple_PACKAGE = integer-simple
++libraries/integer-simple_HC_OPTS = -optc-no-pie -optl-no-pie -optP-no-pie
+ libraries/integer-simple_dist-install_GROUP = libraries
++libraries/integer-simple_dist_HC_OPTS = -optc-no-pie -optl-no-pie -optP-no-pie
+ $(eval $(call build-package,libraries/integer-simple,dist-install,1))
+--- a/libraries/mtl/ghc.mk
++++ b/libraries/mtl/ghc.mk
+@@ -1,3 +1,5 @@
+ libraries/mtl_PACKAGE = mtl
++libraries/mtl_HC_OPTS = -optc-no-pie -optl-no-pie -optP-no-pie
+ libraries/mtl_dist-install_GROUP = libraries
++libraries/mtl_dist_HC_OPTS = -optc-no-pie -optl-no-pie -optP-no-pie
+ $(eval $(call build-package,libraries/mtl,dist-install,1))
+--- a/libraries/old-locale/ghc.mk
++++ b/libraries/old-locale/ghc.mk
+@@ -1,3 +1,5 @@
+ libraries/old-locale_PACKAGE = old-locale
++libraries/old-locale_HC_OPTS = -optc-no-pie -optl-no-pie -optP-no-pie
+ libraries/old-locale_dist-install_GROUP = libraries
++libraries/old-locale_dist_HC_OPTS = -optc-no-pie -optl-no-pie -optP-no-pie
+ $(eval $(call build-package,libraries/old-locale,dist-install,1))
+--- a/libraries/old-time/ghc.mk
++++ b/libraries/old-time/ghc.mk
+@@ -1,3 +1,5 @@
+ libraries/old-time_PACKAGE = old-time
++libraries/old-time_HC_OPTS = -optc-no-pie -optl-no-pie -optP-no-pie
+ libraries/old-time_dist-install_GROUP = libraries
++libraries/old-time_dist_HC_OPTS = -optc-no-pie -optl-no-pie -optP-no-pie
+ $(eval $(call build-package,libraries/old-time,dist-install,1))
+--- a/libraries/pretty/ghc.mk
++++ b/libraries/pretty/ghc.mk
+@@ -1,3 +1,5 @@
+ libraries/pretty_PACKAGE = pretty
++libraries/pretty_HC_OPTS = -optc-no-pie -optl-no-pie -optP-no-pie
+ libraries/pretty_dist-install_GROUP = libraries
++libraries/pretty_dist_HC_OPTS = -optc-no-pie -optl-no-pie -optP-no-pie
+ $(eval $(call build-package,libraries/pretty,dist-install,1))
+--- a/libraries/process/ghc.mk
++++ b/libraries/process/ghc.mk
+@@ -1,3 +1,5 @@
+ libraries/process_PACKAGE = process
++libraries/process_HC_OPTS = -optc-no-pie -optl-no-pie -optP-no-pie
+ libraries/process_dist-install_GROUP = libraries
++libraries/process_dist_HC_OPTS = -optc-no-pie -optl-no-pie -optP-no-pie
+ $(eval $(call build-package,libraries/process,dist-install,1))
+--- a/libraries/random/ghc.mk
++++ b/libraries/random/ghc.mk
+@@ -1,3 +1,5 @@
+ libraries/random_PACKAGE = random
++libraries/random_HC_OPTS = -optc-no-pie -optl-no-pie -optP-no-pie
+ libraries/random_dist-install_GROUP = libraries
++libraries/random_dist_HC_OPTS = -optc-no-pie -optl-no-pie -optP-no-pie
+ $(eval $(call build-package,libraries/random,dist-install,1))
+--- a/libraries/syb/ghc.mk
++++ b/libraries/syb/ghc.mk
+@@ -1,3 +1,5 @@
+ libraries/syb_PACKAGE = syb
++libraries/syb_HC_OPTS = -optc-no-pie -optl-no-pie -optP-no-pie
+ libraries/syb_dist-install_GROUP = libraries
++libraries/syb_dist_HC_OPTS = -optc-no-pie -optl-no-pie -optP-no-pie
+ $(eval $(call build-package,libraries/syb,dist-install,1))
+--- a/libraries/template-haskell/ghc.mk
++++ b/libraries/template-haskell/ghc.mk
+@@ -1,3 +1,5 @@
+ libraries/template-haskell_PACKAGE = template-haskell
++libraries/template-haskell_HC_OPTS = -optc-no-pie -optl-no-pie -optP-no-pie
+ libraries/template-haskell_dist-install_GROUP = libraries
++libraries/template-haskell_dist_HC_OPTS = -optc-no-pie -optl-no-pie -optP-no-pie
+ $(eval $(call build-package,libraries/template-haskell,dist-install,1))
+--- a/libraries/terminfo/ghc.mk
++++ b/libraries/terminfo/ghc.mk
+@@ -1,3 +1,5 @@
+ libraries/terminfo_PACKAGE = terminfo
++libraries/terminfo_HC_OPTS = -optc-no-pie -optl-no-pie -optP-no-pie
+ libraries/terminfo_dist-install_GROUP = libraries
++libraries/terminfo_dist_HC_OPTS = -optc-no-pie -optl-no-pie -optP-no-pie
+ $(eval $(call build-package,libraries/terminfo,dist-install,1))
+--- a/libraries/time/ghc.mk
++++ b/libraries/time/ghc.mk
+@@ -1,3 +1,5 @@
+ libraries/time_PACKAGE = time
++libraries/time_HC_OPTS = -optc-no-pie -optl-no-pie -optP-no-pie
+ libraries/time_dist-install_GROUP = libraries
++libraries/time_dist_HC_OPTS = -optc-no-pie -optl-no-pie -optP-no-pie
+ $(eval $(call build-package,libraries/time,dist-install,1))
+--- a/libraries/unix/ghc.mk
++++ b/libraries/unix/ghc.mk
+@@ -1,3 +1,5 @@
+ libraries/unix_PACKAGE = unix
++libraries/unix_HC_OPTS = -optc-no-pie -optl-no-pie -optP-no-pie
+ libraries/unix_dist-install_GROUP = libraries
++libraries/unix_dist_HC_OPTS = -optc-no-pie -optl-no-pie -optP-no-pie
+ $(eval $(call build-package,libraries/unix,dist-install,1))
+--- a/libraries/utf8-string/ghc.mk
++++ b/libraries/utf8-string/ghc.mk
+@@ -1,3 +1,5 @@
+ libraries/utf8-string_PACKAGE = utf8-string
++libraries/utf8-string_HC_OPTS = -optc-no-pie -optl-no-pie -optP-no-pie
+ libraries/utf8-string_dist-install_GROUP = libraries
++libraries/utf8-string_dist_HC_OPTS = -optc-no-pie -optl-no-pie -optP-no-pie
+ $(eval $(call build-package,libraries/utf8-string,dist-install,1))
+--- a/mk/ways.mk
++++ b/mk/ways.mk
+@@ -86,7 +86,7 @@ WAY_thr_debug_p_HC_OPTS=-optc-DTHREADED_
+ 
+ # Way 'dyn': build dynamic shared libraries
+ WAY_dyn_NAME=dyn
+-WAY_dyn_HC_OPTS=-fPIC -dynamic
++WAY_dyn_HC_OPTS=-fPIC -dynamic -optc-no-pie -optl-no-pie -optP-no-pie
+ 
+ # Way 'thr_dyn':
+ WAY_thr_dyn_NAME=thr_dyn
+--- a/mk/custom-settings.mk
++++ b/mk/custom-settings.mk
+@@ -12,3 +12,4 @@ ifeq "$(BINDIST)" "YES"
+ -include bindist.mk
+ endif
+ 
++SRC_HC_OPTS += -optc-no-pie -optl-no-pie -optP-no-pie
+--- a/rts/ghc.mk
++++ b/rts/ghc.mk
+@@ -15,6 +15,7 @@
+ 
+ # We build the RTS with stage 1
+ rts_dist_HC = $(GHC_STAGE1)
++rts_dist_HC_OPTS = -optc-no-pie -optl-no-pie -optP-no-pie
+ 
+ # merge GhcLibWays and GhcRTSWays but strip out duplicates
+ rts_WAYS = $(GhcLibWays) $(filter-out $(GhcLibWays),$(GhcRTSWays))
+@@ -172,9 +173,9 @@ STANDARD_OPTS += -DCOMPILING_RTS
+ # must be included in both types of compilations.
+ 
+ rts_CC_OPTS += $(WARNING_OPTS)
+-rts_CC_OPTS += $(STANDARD_OPTS)
++rts_CC_OPTS += $(STANDARD_OPTS) -no-pie
+ 
+-rts_HC_OPTS += $(STANDARD_OPTS) -package-name rts
++rts_HC_OPTS += $(STANDARD_OPTS) -package-name rts -optc-no-pie -optl-no-pie -optP-no-pie
+ 
+ ifneq "$(GhcWithSMP)" "YES"
+ rts_CC_OPTS += -DNOSMP

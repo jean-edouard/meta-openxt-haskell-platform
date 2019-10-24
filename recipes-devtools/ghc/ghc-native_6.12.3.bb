@@ -23,7 +23,43 @@ require ghc-${PV}.inc
 #
 # This will have to be dealt with later.
 
+TARGET_CFLAGS_append = " -no-pie "
+NATIVE_CFLAGS_append = " -no-pie "
+TARGET_LDFLAGS_append = " -no-pie "
+NATIVE_LDFLAGS_append = " -no-pie "
+CFLAGS_append = " -no-pie "
+LDFLAGS_append = " -no-pie "
+CONF_CC_OPTS_append = " -no-pie "
+CONF_LD_OPTS_append = " -no-pie "
+TUNE_CCARGS_append = "-no-pie"
+
+TARGET_CFLAGS_remove = "-pie"
+NATIVE_CFLAGS_remove = "-pie"
+TARGET_LDFLAGS_remove = "-pie"
+NATIVE_LDFLAGS_remove = "-pie"
+CFLAGS_remove = "-pie"
+LDFLAGS_remove = "-pie"
+CONF_CC_OPTS_remove = "-pie"
+CONF_LD_OPTS_remove = "-pie"
+TUNE_CCARGS_remove = "-pie"
+
+
 do_configure() {
-    ./configure --prefix=${prefix} --enable-shared
+    export CFLAGS="$CFLAGS -no-pie"
+    export LDFLAGS="$LDFLAGS -no-pie"
+    export BUILD_CFLAGS="$BUILD_CFLAGS -no-pie"
+    export BUILD_LDFLAGS="$BUILD_LDFLAGS -no-pie"
+    ./configure --prefix=${prefix} --enable-shared \
+    CONF_GCC_LINKER_OPTS_STAGE0=-no-pie \
+    CONF_LD_LINKER_OPTS_STAGE0=-no-pie \
+    CONF_HC_OPTS_STAGE0=-optl=-no-pie
+    CONF_CC_OPTS_STAGE2=-fno-PIE \
+    CONF_GCC_LINKER_OPTS_STAGE2=-no-pie \
+    CONF_LD_LINKER_OPTS_STAGE2=-no-pie
+
     echo "STANDARD_OPTS += \"-I${STAGING_INCDIR_NATIVE}\"" >> rts/ghc.mk
 }
+
+#SECURITY_PIE_CFLAGS_remove = "-fPIE -pie --enable-default-pie"
+GCCPIE = ""
+SECURITY_PIE_CFLAGS = ""
